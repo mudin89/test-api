@@ -1,48 +1,56 @@
 package com.mudin.test.myapplication.view
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.mudin.test.myapplication.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mudin.test.myapplication.databinding.ActivityMainBinding
 import com.mudin.test.myapplication.viewmodel.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {
 
-    class MainActivity : AppCompatActivity() {
 
-        lateinit var context: Context
+    lateinit var context: Context
+    lateinit var mainActivityViewModel: MainActivityViewModel
+    lateinit var  binding : ActivityMainBinding
+    private lateinit var userRecyclerAdapter: UserRecyclerAdapter
 
-        lateinit var mainActivityViewModel: MainActivityViewModel
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            val binding = ActivityMainBinding.inflate(layoutInflater)
-            setContentView(binding.root)
+        context = this@MainActivity
+        mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
-            context = this@MainActivity
+        initRecyclerView()
 
-            mainActivityViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-
-            binding.btnClick.setOnClickListener {
-
-                binding.progressBar.visibility = View.VISIBLE
-
-                mainActivityViewModel.getUser()!!.observe(this, Observer { serviceSetterGetter ->
-
-                    binding.progressBar.visibility = View.GONE
-
-                    val msg = serviceSetterGetter.userList
-
-                    binding.lblResponse.text = msg.toString()
-
-                })
-
-            }
-
+        binding.btnClick.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
+            mainActivityViewModel.getUser()!!.observe(this, Observer { serviceSetterGetter ->
+                binding.progressBar.visibility = View.GONE
+                val msg = serviceSetterGetter.userList
+                msg?.let{
+                    userRecyclerAdapter.submitList(msg)
+                    userRecyclerAdapter.notifyDataSetChanged()
+                }
+            })
         }
     }
+
+    private fun initRecyclerView(){
+        binding.rcvResponse.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            val topSpacingDecorator = TopSpacingItemDecoration(30)
+            addItemDecoration(topSpacingDecorator)
+            userRecyclerAdapter = UserRecyclerAdapter()
+            adapter = userRecyclerAdapter
+        }
+    }
+
+
 }
