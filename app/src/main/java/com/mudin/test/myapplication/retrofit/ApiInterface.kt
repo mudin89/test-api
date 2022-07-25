@@ -11,7 +11,7 @@ interface ApiInterface {
     @GET("posts")
     fun getServices() : Call<List<User>>
 
-    @GET("posts/{post_id}/comment")
+    @GET("posts/{post_id}/comments")
     fun getComment(@Path(value = "post_id", encoded = true) postId : String) : Call<List<Comment>>
 
 }

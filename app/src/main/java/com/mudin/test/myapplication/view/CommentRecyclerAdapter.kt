@@ -13,7 +13,6 @@ import kotlin.collections.ArrayList
 
 class CommentRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val TAG: String = "AppDebug"
     private var items: List<Comment> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

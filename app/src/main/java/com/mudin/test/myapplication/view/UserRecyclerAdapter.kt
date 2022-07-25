@@ -12,8 +12,6 @@ import com.mudin.test.myapplication.model.User
 
 class UserRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val TAG: String = "AppDebug"
-    var onItemClick: ((User) -> Unit)? = null
     private var items: List<User> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -49,7 +47,7 @@ class UserRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             itemBinding.container1.setOnClickListener(View.OnClickListener {
                 val context = itemBinding.root.context
                 val intent = Intent(context, CommentActivity::class.java)
-                intent.putExtra("POST_ID", user.userId)
+                intent.putExtra("POST_ID", user.userId.toString())
                 context.startActivity(intent)
             })
         }
