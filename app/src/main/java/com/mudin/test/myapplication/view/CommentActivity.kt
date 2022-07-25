@@ -8,19 +8,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import com.mudin.test.myapplication.MyApplication
 import com.mudin.test.myapplication.databinding.ActivityCommentBinding
+import com.mudin.test.myapplication.di.AppXBus
 import com.mudin.test.myapplication.model.Comment
 import com.mudin.test.myapplication.viewmodel.MainActivityViewModel
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import javax.inject.Inject
 
 
 class CommentActivity : AppCompatActivity() {
 
 
     lateinit var context: Context
+
+    @Inject
     lateinit var commentActivityModelView: MainActivityViewModel
     lateinit var binding: ActivityCommentBinding
     private lateinit var commentRecyclerAdapter: CommentRecyclerAdapter
     var currentComment  = mutableListOf<Comment>()
+
+    @Inject
+    lateinit var compositeDisposable: CompositeDisposable
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +39,9 @@ class CommentActivity : AppCompatActivity() {
         binding = ActivityCommentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        commentActivityModelView = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        //init of dagger injection
+        (application as MyApplication).getAppComponent().doInjection(this)
+
 
         initRecyclerView()
 
@@ -62,6 +75,9 @@ class CommentActivity : AppCompatActivity() {
             })
         })
 
+        val errorSB = showErrorListener()
+        compositeDisposable.add(errorSB)
+
 
     }
 
@@ -86,6 +102,24 @@ class CommentActivity : AppCompatActivity() {
         //calling a method of the adapter class and passing the filtered list
         commentRecyclerAdapter.submitList(filteredCourseAry)
         commentRecyclerAdapter.notifyDataSetChanged()
+    }
+
+    override fun onDestroy() { //clear any observable here to prevent crashed
+        super.onDestroy()
+        compositeDisposable.clear()
+    }
+
+    private fun showErrorListener(): Disposable {
+        val d = AppXBus.listen(AppXBus.AppEvents.showError::class.java)
+            .subscribe({ ok ->
+                showError()
+            }, { t: Throwable? ->  })
+        return d
+    }
+
+    private fun showError(){
+        Snackbar.make(binding.root, "Error in reaching the API", Snackbar.LENGTH_LONG).show()
+
     }
 
 
